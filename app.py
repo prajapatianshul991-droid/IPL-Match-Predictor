@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import plotly.graph_objects as go
 
 # Page config
 st.set_page_config(
@@ -9,123 +10,26 @@ st.set_page_config(
     layout="wide"
 )
 
-# Custom CSS — IPL dark theme with gold accents
+# Custom CSS
 st.markdown("""
 <style>
-    /* Background */
-    .stApp {
-        background-color: #0f1117;
-        color: #f0f0f0;
-    }
-
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #1a1d2e;
-        border-right: 2px solid #f5a623;
-    }
-
-    /* Title */
-    .main-title {
-        font-size: 2.8rem;
-        font-weight: 800;
-        color: #f5a623;
-        text-align: center;
-        letter-spacing: 2px;
-        margin-bottom: 0.2rem;
-    }
-
-    .sub-title {
-        font-size: 1rem;
-        color: #aaaaaa;
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    /* Stat Cards */
-    .stat-card {
-        background: linear-gradient(135deg, #1a1d2e, #252840);
-        border: 1px solid #f5a623;
-        border-radius: 12px;
-        padding: 1.2rem;
-        text-align: center;
-        margin: 0.5rem 0;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #f5a623;
-    }
-
-    .stat-label {
-        font-size: 0.85rem;
-        color: #aaaaaa;
-        margin-top: 0.2rem;
-    }
-
-    /* Section headers */
-    .section-header {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #f5a623;
-        border-bottom: 2px solid #f5a623;
-        padding-bottom: 0.4rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Predict button */
-    .stButton > button {
-        background: linear-gradient(135deg, #f5a623, #e8890a);
-        color: #0f1117;
-        font-weight: 700;
-        font-size: 1.1rem;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 2rem;
-        width: 100%;
-        transition: opacity 0.2s;
-    }
-
-    .stButton > button:hover {
-        opacity: 0.85;
-    }
-
-    /* Selectbox, number input */
-    .stSelectbox > div, .stNumberInput > div {
-        background-color: #1a1d2e !important;
-        border-radius: 8px;
-    }
-
-    /* Winner box */
-    .winner-box {
-        background: linear-gradient(135deg, #1a3a1a, #1e4a1e);
-        border: 2px solid #4caf50;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        margin-top: 1rem;
-    }
-
-    .winner-text {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: #4caf50;
-    }
-
-    .confidence-text {
-        font-size: 1rem;
-        color: #aaaaaa;
-        margin-top: 0.5rem;
-    }
-
-    /* Divider */
-    hr {
-        border-color: #2a2d3e;
-    }
+    .stApp { background-color: #0f1117; color: #f0f0f0; }
+    [data-testid="stSidebar"] { background-color: #1a1d2e; border-right: 2px solid #f5a623; }
+    .main-title { font-size: 2.8rem; font-weight: 800; color: #f5a623; text-align: center; letter-spacing: 2px; margin-bottom: 0.2rem; }
+    .sub-title { font-size: 1rem; color: #aaaaaa; text-align: center; margin-bottom: 2rem; }
+    .stat-card { background: linear-gradient(135deg, #1a1d2e, #252840); border: 1px solid #f5a623; border-radius: 12px; padding: 1.2rem; text-align: center; margin: 0.5rem 0; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #f5a623; }
+    .stat-label { font-size: 0.85rem; color: #aaaaaa; margin-top: 0.2rem; }
+    .section-header { font-size: 1.4rem; font-weight: 700; color: #f5a623; border-bottom: 2px solid #f5a623; padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .stButton > button { background: linear-gradient(135deg, #f5a623, #e8890a); color: #0f1117; font-weight: 700; font-size: 1.1rem; border: none; border-radius: 8px; padding: 0.6rem 2rem; width: 100%; transition: opacity 0.2s; }
+    .stButton > button:hover { opacity: 0.85; }
+    .winner-box { background: linear-gradient(135deg, #1a3a1a, #1e4a1e); border: 2px solid #4caf50; border-radius: 12px; padding: 1.5rem; text-align: center; margin-top: 1rem; }
+    .winner-text { font-size: 1.8rem; font-weight: 800; color: #4caf50; }
+    .confidence-text { font-size: 1rem; color: #aaaaaa; margin-top: 0.5rem; }
+    hr { border-color: #2a2d3e; }
 </style>
 """, unsafe_allow_html=True)
 
-# Load model and encoders
 @st.cache_resource
 def load_models():
     with open('ipl_model.pkl', 'rb') as f:
@@ -143,10 +47,13 @@ def load_stats():
     matches = pd.read_csv('ipl_final.csv')
     return batting, bowling, matches
 
+@st.cache_data
+def load_balls():
+    return pd.read_csv('ipl_balls.csv')
+
 model, le_team, le_venue = load_models()
 batting_stats, bowling_stats, matches_df = load_stats()
 
-# Team active years
 team_active_years = {
     'Chennai Super Kings': [(2008, 2015), (2018, 2026)],
     'Delhi Daredevils': [(2008, 2018)],
@@ -171,20 +78,18 @@ def is_active(team, season):
         return any(start <= season <= end for start, end in team_active_years[team])
     return True
 
-# Sidebar Navigation
 st.sidebar.markdown("## 🏏 IPL Analytics Hub")
 st.sidebar.markdown("---")
 page = st.sidebar.radio("Navigate", [
     "🏆 Match Predictor",
     "📊 Player Comparison",
-    "⚔️ Head-to-Head"
+    "⚔️ Head-to-Head",
+    "📈 Run Progression"
 ])
 st.sidebar.markdown("---")
 st.sidebar.markdown("<small style='color:#aaa'>Data: Cricsheet 2008–2026</small>", unsafe_allow_html=True)
 
-# ─────────────────────────────────────────
 # PAGE 1: MATCH PREDICTOR
-# ─────────────────────────────────────────
 if page == "🏆 Match Predictor":
     st.markdown('<div class="main-title">🏆 IPL Match Predictor</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Predict the winner based on teams, venue, toss & season</div>', unsafe_allow_html=True)
@@ -193,14 +98,12 @@ if page == "🏆 Match Predictor":
     venues = sorted(le_venue.classes_.tolist())
 
     col1, col2 = st.columns(2)
-
     with col1:
         st.markdown('<div class="section-header">⚙️ Match Details</div>', unsafe_allow_html=True)
         season = st.number_input("Season (Year)", min_value=2008, max_value=2026, value=2026)
         active_teams = [t for t in teams if is_active(t, season)]
         team1 = st.selectbox("🔵 Team 1", active_teams)
         team2 = st.selectbox("🔴 Team 2", [t for t in active_teams if t != team1])
-
     with col2:
         st.markdown('<div class="section-header">🪙 Toss Details</div>', unsafe_allow_html=True)
         toss_winner = st.selectbox("Toss Winner", [team1, team2])
@@ -208,7 +111,6 @@ if page == "🏆 Match Predictor":
         venue = st.selectbox("🏟️ Venue", venues)
 
     st.markdown("<br>", unsafe_allow_html=True)
-
     if st.button("⚡ Predict Winner!"):
         team1_enc = le_team.transform([team1])[0]
         team2_enc = le_team.transform([team2])[0]
@@ -218,10 +120,8 @@ if page == "🏆 Match Predictor":
 
         proba = model.predict_proba([[team1_enc, team2_enc, venue_enc, toss_enc, bat_first, season]])[0]
         model_classes = model.classes_
-
         team1_prob = proba[model_classes == team1_enc][0] if team1_enc in model_classes else 0
         team2_prob = proba[model_classes == team2_enc][0] if team2_enc in model_classes else 0
-
         winner = team1 if team1_prob > team2_prob else team2
         confidence = max(team1_prob, team2_prob) * 100
 
@@ -232,7 +132,6 @@ if page == "🏆 Match Predictor":
         </div>
         """, unsafe_allow_html=True)
 
-        # Win probability bars
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="section-header">📊 Win Probability</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
@@ -243,9 +142,7 @@ if page == "🏆 Match Predictor":
             st.metric(team2, f"{team2_prob*100:.1f}%")
             st.progress(team2_prob)
 
-# ─────────────────────────────────────────
 # PAGE 2: PLAYER COMPARISON
-# ─────────────────────────────────────────
 elif page == "📊 Player Comparison":
     st.markdown('<div class="main-title">📊 Player Comparison</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Compare batting & bowling stats of any two IPL players</div>', unsafe_allow_html=True)
@@ -271,7 +168,6 @@ elif page == "📊 Player Comparison":
             ('Strike Rate', 'strike_rate'),
             ('Average', 'average'),
         ]
-
         for label, col in metrics:
             c1, c2, c3 = st.columns([2, 1, 2])
             with c1:
@@ -300,7 +196,6 @@ elif page == "📊 Player Comparison":
             ('Economy', 'economy'),
             ('Bowling Avg', 'bowling_avg'),
         ]
-
         for label, col in bowl_metrics:
             c1, c2, c3 = st.columns([2, 1, 2])
             with c1:
@@ -310,22 +205,18 @@ elif page == "📊 Player Comparison":
             with c3:
                 st.markdown(f'<div class="stat-card"><div class="stat-value">{b2_stats[col]}</div><div class="stat-label">{b2}</div></div>', unsafe_allow_html=True)
 
-# ─────────────────────────────────────────
 # PAGE 3: HEAD-TO-HEAD
-# ─────────────────────────────────────────
 elif page == "⚔️ Head-to-Head":
     st.markdown('<div class="main-title">⚔️ Head-to-Head Analyzer</div>', unsafe_allow_html=True)
     st.markdown('<div class="sub-title">Historical record between any two IPL teams</div>', unsafe_allow_html=True)
 
     teams_list = sorted(matches_df['team1'].unique().tolist())
-
     col1, col2 = st.columns(2)
     with col1:
         h2h_team1 = st.selectbox("Team 1", teams_list, key='h2h1')
     with col2:
         h2h_team2 = st.selectbox("Team 2", [t for t in teams_list if t != h2h_team1], key='h2h2')
 
-    # Filter matches between these 2 teams
     h2h_matches = matches_df[
         ((matches_df['team1'] == h2h_team1) & (matches_df['team2'] == h2h_team2)) |
         ((matches_df['team1'] == h2h_team2) & (matches_df['team2'] == h2h_team1))
@@ -341,7 +232,6 @@ elif page == "⚔️ Head-to-Head":
 
         st.markdown("<br>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
-
         with c1:
             st.markdown(f'<div class="stat-card"><div class="stat-value">{total}</div><div class="stat-label">Total Matches</div></div>', unsafe_allow_html=True)
         with c2:
@@ -351,7 +241,6 @@ elif page == "⚔️ Head-to-Head":
         with c4:
             st.markdown(f'<div class="stat-card"><div class="stat-value">{no_result}</div><div class="stat-label">No Result</div></div>', unsafe_allow_html=True)
 
-        # Win % bars
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="section-header">🏆 Win Percentage</div>', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
@@ -364,8 +253,72 @@ elif page == "⚔️ Head-to-Head":
             st.metric(h2h_team2, f"{pct2*100:.1f}%")
             st.progress(pct2)
 
-        # Recent matches
         st.markdown("<br>", unsafe_allow_html=True)
         st.markdown('<div class="section-header">📅 Recent Matches</div>', unsafe_allow_html=True)
         recent = h2h_matches[['date', 'venue', 'winner']].sort_values('date', ascending=False).head(5)
         st.dataframe(recent.reset_index(drop=True), use_container_width=True)
+
+# PAGE 4: RUN PROGRESSION
+elif page == "📈 Run Progression":
+    st.markdown('<div class="main-title">📈 Run Progression</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-title">Over-by-over run progression for any IPL match</div>', unsafe_allow_html=True)
+
+    balls_data = load_balls()
+    teams_list = sorted(matches_df['team1'].unique().tolist())
+
+    col1, col2 = st.columns(2)
+    with col1:
+        rp_season = st.number_input("Season (Year)", min_value=2008, max_value=2026, value=2026, key='rp_season')
+        active_teams_rp = [t for t in teams_list if is_active(t, rp_season)]
+        rp_team1 = st.selectbox("Team 1", active_teams_rp, key='rp_team1')
+    with col2:
+        rp_team2 = st.selectbox("Team 2", [t for t in active_teams_rp if t != rp_team1], key='rp_team2')
+
+    h2h = matches_df[
+        ((matches_df['team1'] == rp_team1) & (matches_df['team2'] == rp_team2) |
+        (matches_df['team1'] == rp_team2) & (matches_df['team2'] == rp_team1)) &
+        (matches_df['season'] == rp_season)
+    ]
+
+    if len(h2h) == 0:
+        st.warning("Koi match nahi mila in dono teams ke beech is season mein!")
+    else:
+        match_options = [f"Match {i+1}: {row['team1']} vs {row['team2']} ({row['venue']})"
+                        for i, (_, row) in enumerate(h2h.iterrows())]
+        selected_match = st.selectbox("Match select karo", match_options)
+        match_idx = match_options.index(selected_match)
+        match_info = h2h.iloc[match_idx]
+
+        match_balls = balls_data[balls_data['match_id'] == match_info['match_id']]
+        over_scores = match_balls.groupby(['batting_team', 'over'])['runs_total'].sum().reset_index()
+
+        team1_scores = over_scores[over_scores['batting_team'] == match_info['team1']].copy()
+        team2_scores = over_scores[over_scores['batting_team'] == match_info['team2']].copy()
+
+        team1_scores['cumulative'] = team1_scores['runs_total'].cumsum()
+        team2_scores['cumulative'] = team2_scores['runs_total'].cumsum()
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(
+            x=team1_scores['over'], y=team1_scores['cumulative'],
+            mode='lines+markers', name=match_info['team1'],
+            line=dict(color='#f5a623', width=3)
+        ))
+        fig.add_trace(go.Scatter(
+            x=team2_scores['over'], y=team2_scores['cumulative'],
+            mode='lines+markers', name=match_info['team2'],
+            line=dict(color='#4fc3f7', width=3)
+        ))
+
+        fig.update_layout(
+            title=f"{match_info['team1']} vs {match_info['team2']} — Run Progression",
+            xaxis_title="Over",
+            yaxis_title="Cumulative Runs",
+            plot_bgcolor='#1a1d2e',
+            paper_bgcolor='#0f1117',
+            font=dict(color='#f0f0f0'),
+            legend=dict(bgcolor='#1a1d2e')
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+        st.info(f"🏆 Winner: {match_info['winner']}")
