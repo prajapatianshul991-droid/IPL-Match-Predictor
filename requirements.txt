@@ -1,4 +1,8 @@
 streamlit
 pandas
-scikit-learn
+numpy
 plotly
+scikit-learn
+chromadb
+sentence-transformers
+google-genai
