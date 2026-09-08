@@ -1,102 +1,222 @@
-# 🏏 IPL Match Winner Predictor
+# 🏏 IPL Intelligence Hub
 
-A complete end-to-end Data Science project that predicts the winner of an IPL match using historical data (2008–2026) and an interactive Streamlit web app.
+### Machine Learning • Cricket Analytics • RAG • Streamlit
 
-🔗 **Live App:** [ipl-match-predictor.streamlit.app](https://ipl-match-predictor-2ffywhpzqtjxydhvc6u2vf.streamlit.app/)
+An end-to-end Data Science and Machine Learning project for exploring Indian Premier League data from **2008–2026**.
+
+The application combines **match winner prediction, ball-by-ball analytics, player statistics, season analysis, head-to-head comparisons, interactive visualizations, and an AI-powered IPL assistant using Retrieval-Augmented Generation (RAG).**
+
+🔗 **Live Application:**  
+https://ipl-match-predictor-2ffywhpzqtjxydhvc6u2vf.streamlit.app/
 
 ---
 
 ## 📌 Project Overview
 
-This project covers the complete data science pipeline — from raw data collection to a deployed, interactive web application:
+IPL Intelligence Hub was developed as a complete Data Science project covering:
 
-1. **Data Collection** – Ball-by-ball IPL data (2008–2026, 1200+ matches) sourced from [Cricsheet](https://cricsheet.org/)
-2. **Data Cleaning** – Standardized team names across seasons (e.g., Delhi Daredevils → Delhi Capitals), removed "No Result" matches, checked for duplicates
-3. **Exploratory Data Analysis (EDA)** – Visualized:
-   - Top winning teams (2008–2026)
-   - Impact of toss result on match outcome
-   - Most-used venues
-4. **Feature Engineering** – Created features like toss decision, season, and label-encoded teams/venues
-5. **Machine Learning** – Trained a Random Forest Classifier to predict the match winner, with probability-based logic to ensure predictions are always one of the two competing teams
-6. **Deployment** – Built and deployed an interactive web app using Streamlit, with season-aware team filtering (handles renamed, banned, and discontinued teams)
+- Data collection
+- Data cleaning and preprocessing
+- Exploratory Data Analysis
+- Feature engineering
+- Machine Learning
+- Ball-by-ball cricket analytics
+- Player-level statistics
+- Historical IPL analysis
+- Retrieval-Augmented Generation
+- Interactive dashboard development
+- Cloud deployment
 
----
-
-## 🧠 Key Challenge Solved
-
-IPL has a complex history — teams have been renamed, banned for seasons, or discontinued entirely:
-- Delhi Daredevils → Delhi Capitals
-- Kings XI Punjab → Punjab Kings
-- Chennai Super Kings banned in 2016–17
-- Royal Challengers Bangalore → Royal Challengers Bengaluru
-
-The app uses **season-aware logic** so that only historically valid teams appear for a selected year, keeping predictions logically consistent.
+The project uses **1,243 IPL matches** and approximately **295,000+ ball-by-ball deliveries** covering IPL seasons from **2008 to 2026**.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
 
-- **Python**
-- **Pandas** – data cleaning and manipulation
-- **Matplotlib / Seaborn** – exploratory data analysis
-- **Scikit-learn** – Random Forest model, Label Encoding
-- **Streamlit** – web app and deployment
-- **Pickle** – model and encoder serialization
+### 🏆 Match Winner Predictor
 
----
+Predicts the probable winner between two IPL teams using a Machine Learning model trained on historical IPL data.
 
-## 📂 Repository Structure
+Prediction features include:
 
-```
-├── app.py                  # Streamlit web app
-├── IPL.ipynb               # Data cleaning, EDA, feature engineering & model training
-├── ipl_final.csv           # Final processed dataset
-├── ipl_model.pkl           # Trained Random Forest model
-├── team_encoder.pkl        # Label encoder for teams
-├── venue_encoder.pkl       # Label encoder for venues
-├── requirements.txt        # Project dependencies
-└── README.md
-```
+- Team 1
+- Team 2
+- Toss winner
+- Venue
+- Historical head-to-head win rate
+- Team 1 recent average runs
+- Team 2 recent average runs
+- Team 1 recent runs conceded
+- Team 2 recent runs conceded
+- Season
+
+The application also applies **season-aware team validation**, ensuring only teams active during the selected IPL season are available.
 
 ---
 
-## 🚀 How It Works
+### 👥 Player Comparison
 
-1. Select the season (year)
-2. Choose Team 1 and Team 2 (only historically valid teams for that season are shown)
-3. Select toss winner and toss decision
-4. Choose the venue
-5. Click **"Predict Winner!"** to get the predicted winner along with the model's confidence score
+Compare IPL players using career batting and bowling statistics.
 
----
+Batting analytics include:
 
-## 📊 Model Performance
+- Total runs
+- Balls faced
+- Batting average
+- Strike rate
 
-- **Model:** Random Forest Classifier
-- **Accuracy:** ~49%
+Bowling analytics include:
 
-Cricket is highly unpredictable, and this model uses only match-level features (teams, venue, toss, season). Accuracy can be improved with player-level and ball-by-ball data — which is planned for future versions.
-
----
-
-## 🔮 Future Scope (v2)
-
-This is **version 1** of the project. Planned upgrades include:
-- Ball-by-ball and player-level analysis
-- Live, over-by-over win probability prediction
-- Best XI / Dream11-style team suggestions
-- Head-to-head team analyzer
+- Total wickets
+- Overs
+- Economy rate
+- Bowling average
 
 ---
 
-## 🙏 Acknowledgements
+### 📅 Season Explorer
 
-This is a personal learning project, built with guidance and code assistance from **Claude (Anthropic AI)** — used to learn concepts, debug errors, and understand the end-to-end ML workflow step by step.
+Explore every IPL season from **2008–2026**.
+
+The Season Explorer provides:
+
+- IPL champion
+- Orange Cap winner
+- Purple Cap winner
+- Player of the Match records
+- Teams participating in the season
+- Season-wise player squads
+- Leading run scorers
+- Leading wicket takers
+- Historical title counts
 
 ---
 
-## 👤 Author
+### ⚔️ Head-to-Head Analysis
 
-**Anshul Prajapati**
-B.Tech CSE (Data Science), AKTU
-GitHub: [@prajapatianshul991-droid](https://github.com/prajapatianshul991-droid)
+Compare two IPL teams using their historical match record.
+
+Displays:
+
+- Total matches played
+- Wins by Team 1
+- Wins by Team 2
+- No-result/other matches
+- Historical matchup statistics
+
+---
+
+### 📈 Run Progression Analysis
+
+Visualizes how runs progressed throughout an IPL match using ball-by-ball data.
+
+Interactive Plotly charts are used to provide a clean match progression view.
+
+---
+
+## 🤖 AI-Powered IPL Assistant
+
+The project includes a hybrid IPL question-answering system.
+
+Users can ask questions such as:
+
+- Who scored the most career IPL runs?
+- Who scored the highest runs in a single season?
+- Who won IPL 2016?
+- Who won the Orange Cap in 2024?
+- Which team has won the most IPL titles?
+- Who were the RCB players in 2016?
+- What are Virat Kohli's batting statistics?
+- RCB vs MI head-to-head record
+
+---
+
+## 🧠 Hybrid RAG Architecture
+
+The AI assistant combines multiple techniques instead of depending only on an LLM.
+
+### 1. Exact Statistical Queries
+
+Questions involving rankings, totals, maximum values and player statistics are answered directly using **Pandas**.
+
+This helps prevent hallucinated numerical answers.
+
+Examples:
+
+- Highest career runs
+- Highest career wickets
+- Top N run scorers
+- Highest single-season runs
+- Orange/Purple Cap winners
+- IPL champions
+- Team title counts
+
+---
+
+### 2. Vector Retrieval
+
+A dedicated IPL knowledge base is indexed using:
+
+- **ChromaDB**
+- **Sentence Transformers**
+- **all-MiniLM-L6-v2 embeddings**
+
+The final knowledge base contains approximately **3,072 IPL documents**.
+
+It contains information about:
+
+- Match results
+- Career batting statistics
+- Career bowling statistics
+- Season squads
+- IPL champions
+- Orange Cap winners
+- Purple Cap winners
+- Player of the Match records
+- Team title history
+
+---
+
+### 3. Gemini Integration
+
+For questions requiring natural-language reasoning, the application can use the **Gemini API** with retrieved IPL context.
+
+If Gemini is unavailable or API quota is exhausted, the application falls back to structured IPL data rather than generating unsupported statistics.
+
+---
+
+## 📊 Dataset
+
+The project uses IPL data provided by **Cricsheet**.
+
+Dataset coverage:
+
+- **Seasons:** 2008–2026
+- **Matches:** 1,243
+- **Ball-by-ball deliveries:** ~295K+
+- **Batters:** 700+
+- **Bowlers:** 500+
+
+Raw Cricsheet JSON files were transformed into structured datasets for Machine Learning and analytics.
+
+Source:
+
+https://cricsheet.org/
+
+---
+
+## 🧹 Data Processing
+
+Several preprocessing steps were performed before modelling and analysis.
+
+### Team Name Normalization
+
+Historical team names were standardized.
+
+Examples:
+
+```text
+Delhi Daredevils → Delhi Capitals
+Kings XI Punjab → Punjab Kings
+Royal Challengers Bangalore → Royal Challengers Bengaluru
+Rising Pune Supergiants → Rising Pune Supergiant
