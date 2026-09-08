@@ -2,7 +2,7 @@
 
 A complete end-to-end Data Science project that predicts the winner of an IPL match using historical data (2008–2026) and an interactive Streamlit web app.
 
-🔗 **Live App:** [ipl-match-predictor.streamlit.app](https://ipl-match-predictor-fkpwzkyarkopzy86njuzxc.streamlit.app/)
+🔗 **Live App:** [ipl-match-predictor.streamlit.app](https://ipl-match-predictor-2ffywhpzqtjxydhvc6u2vf.streamlit.app/)
 
 ---
 
