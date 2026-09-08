@@ -1,8 +1,8 @@
 streamlit
-pandas
-numpy
+pandas==2.3.3
+numpy==2.3.5
 plotly
-scikit-learn
+scikit-learn==1.7.2
 chromadb
 sentence-transformers
 google-genai
